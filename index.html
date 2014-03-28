@@ -34,14 +34,21 @@
           <h1>
 <a name="welcome-to-blackhole-documentation" class="anchor" href="#welcome-to-blackhole-documentation"><span class="octicon octicon-link"></span></a>Welcome to Blackhole documentation.</h1>
 
-<h2>
-<a name="architecture" class="anchor" href="#architecture"><span class="octicon octicon-link"></span></a>Architecture</h2>
+<h1>
+<a name="architecture" class="anchor" href="#architecture"><span class="octicon octicon-link"></span></a>Architecture</h1>
 
 <p>Blackhole was originally conceived as project with clearly separated entities, or modules. Mainly this decision was made because the project can be easily tested and expanded if it consists of independent entities than with the coupled ones.</p>
 
 <p>Let's start our description with the fact that we represent Blackhole logger as the production line on which some cargos are transported and some work is done with them. This can be represented schematically as follows:</p>
 
 <p><img src="http://3hren.github.io/blackhole/images/architecture.png" alt="Alt text"></p>
+
+<p>The main transport unit in our case - is log event.</p>
+
+<p>Internally Blackhole events are mutual attributes container. Event is considered valid if there is at least one attribute in it. At this point let's talk what attributes are.</p>
+
+<h2>
+<a name="attributes" class="anchor" href="#attributes"><span class="octicon octicon-link"></span></a>Attributes</h2>
         </section>
 
         <footer>
