@@ -49,6 +49,13 @@
 
 <h2>
 <a name="attributes" class="anchor" href="#attributes"><span class="octicon octicon-link"></span></a>Attributes</h2>
+
+<p>Nowadays logs are much more than just a message with attached timestamp and severity level and <a href="http://logstash.net">Logstash</a>'s experience proves that. Of course that information provides a fairly comprehensive view about what’s going on and how important occurred event is, but the main problem that the event itself is completely unstructured and it's quite difficult to use in a further processing like extracting all logs with specific value in message.</p>
+
+<p>Imagine that you are logging some http request. How do you form your logging event? Well, personally I imagine something like this:</p>
+
+<pre><code>[2014-03-30 15:30:00.000000] [INFO]: GET '/index/type/id' failed with 404: document not found
+</code></pre>
         </section>
 
         <footer>
