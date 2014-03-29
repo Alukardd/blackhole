@@ -1,3 +1,7 @@
+---
+layout: default
+---
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -33,149 +37,9 @@
         <section id="main_content">
           <h1>
 <a name="welcome-to-blackhole-documentation" class="anchor" href="#welcome-to-blackhole-documentation"><span class="octicon octicon-link"></span></a>Welcome to Blackhole documentation.</h1>
-
-<h1>
-<a name="architecture" class="anchor" href="#architecture"><span class="octicon octicon-link"></span></a>Architecture</h1>
-
-<p>Blackhole was originally conceived as project with clearly separated entities, or modules. Mainly this decision was made because the project can be easily tested and expanded if it consists of independent entities than with the coupled ones.</p>
-
-<p>Let's start our description with the fact that we represent Blackhole logger as the production line on which some cargos are transported and some work is done with them. This can be represented schematically as follows:</p>
-
-<p><img src="http://3hren.github.io/blackhole/images/architecture.png" alt="Alt text"></p>
-
-<p>The main transport unit in our case - is log event.</p>
-
-<p>Internally Blackhole events are mutual attributes container. Event is considered valid if there is at least one attribute in it. At this point let's talk what attributes are.</p>
-
-<h2>
-<a name="attributes" class="anchor" href="#attributes"><span class="octicon octicon-link"></span></a>Attributes</h2>
-
-<p>Nowadays logs are much more than just a message with attached timestamp and severity level and <a href="http://logstash.net">Logstash</a>'s experience proves that. Of course that information provides a fairly comprehensive view about what’s going on and how important occurred event is, but the main problem that the event itself is completely unstructured and it's quite difficult to use in a further processing like extracting all logs with specific value in message.</p>
-
-<p>Imagine that you are logging some http request. How do you form your logging event? Well, personally I'll write something like this:</p>
-
-<pre><code>[2014-03-30 15:30:00.000000] [INFO]: GET '/index/type/id' failed with 404: document not found
-</code></pre>
-
-<p>Even there we can see additional log event's properties:</p>
-
-<ul>
-<li>HTTP method: GET</li>
-<li>URI: /index/type/id</li>
-<li>HTTP status code: 404</li>
-<li>HTTP error reason: document not found</li>
-</ul><p>See, even that simple log event can be typized (or structured) for further processing. What kind of processing? Well, are you seriously going to analyze your logs via parsing it with grep or other similar tool?</p>
-
-<p>Not only it is inefficient, but also does not guarantee a positive result if the format changes with time. Much better is to put your events into special typed document-oriented database, like ElasticSearch which provides out of the box almost instantly search and analyze.</p>
-
-<p>So, in Blackhole everything that relates to log event - is an attribute actually. Attribute itself is represented by value-scale pair, where value has variant type (which isn't sound very surprisingly in C++), and the scale determines attribute's mapping to one of the following groups:</p>
-
-<ul>
-<li>Local: user's attributes;</li>
-<li>Event: attributes, that doesn't specified by user, like message or timestamp;</li>
-<li>Global: logger's object specific attributes, which can be attached to the logger object and which are transported with it;</li>
-<li>Thread: thread-specific attributes, like thread id;</li>
-<li>Universe: program global attributes, like process id.</li>
-</ul><p>Also every attribute has its name, which in summary gives a complete picture of the log event.</p>
-
-<h2>
-<a name="log-event" class="anchor" href="#log-event"><span class="octicon octicon-link"></span></a>Log Event</h2>
-
-<p>Returning back to the log event, I repeat that log event - is just a set of typed attributes. In our case it will be:</p>
-
-<pre><code>[timestamp: 2014-03-28 15:30:00.000000]
-[severity: 3]
-[message: request failed]
-[method: GET]
-[uri: /index/type/id]
-[status: 404]
-[reason: document not found]
-</code></pre>
-
-<p>All this attributes gives fully representation of event occurred. Moreover, it can be easily analyzed and indexed for further search.</p>
-
-<p>Return to the consideration architecture scheme in more detail. We see, that all further manipulations with log events are occurred in logger object.</p>
-
-<h2>
-<a name="filtering" class="anchor" href="#filtering"><span class="octicon octicon-link"></span></a>Filtering</h2>
-
-<p>After sending attributes into logger object, they are pre-filtered. Since we have nothing but attributes in the log event, filtering performs on them. For example we can make filter, that only passes log events with severity level more than 3 (INFO) or by presence of some attribute (like urgent tag). Blackhole allows you to configure filtering in two ways: by specifying some functional object which accepts attributes set and returns boolean value, determining if the event pass filtering or not; or by using built-in filter DSL (will described later).</p>
-
-<p>Filtered events are sent into the main part of logger - frontends, which can be one ore more.</p>
-
-<h2>
-<a name="frontend" class="anchor" href="#frontend"><span class="octicon octicon-link"></span></a>Frontend</h2>
-
-<p>Frontend consists of a simple pair of formatter-sink, and it is responsible for communication between them. If the standard contract between formatter and sink is not enough, you can always implement your own specialization of frontent's template class and use it. But it will be described later. For now we look at the each frontend's blocks: formatters and sinks.</p>
-
-<h3>
-<a name="formatter" class="anchor" href="#formatter"><span class="octicon octicon-link"></span></a>Formatter</h3>
-
-<p>Formatter module is responsible for translating log event into the string. Why string? Because for almost every case that you can imagine exactly string representation of log event is used.</p>
-
-<ul>
-<li>Writing log into files on the HDD? Definitely string!</li>
-<li>Syslog? Sure.</li>
-<li>NT events, sockets, streams? String again (event obfuscated or strongly formatted like jsoned, msgpacked or protobuffed string).</li>
-</ul><p>Thus, formatter's objects always produce strings.</p>
-
-<p>Blackhole has some predefined formatters that we briefly enumerate. More detail description will be discussed later hereinafter:</p>
-
-<ul>
-<li>String by pattern: builds string by specified pattern using attributes provided;</li>
-<li>Json: builds completely json tree, custom tree structure is supported as like as custom nodes renaming; </li>
-<li>Msgpack: behaves just like json formatter, but builds msgpacked object.</li>
-</ul><p>After formatting we have log event's string representation, and (we are almost done with it) the last thing we can do with that string - is to send it into the final destination appointment. It is the part where sinks comes at the first place.</p>
-
-<h3>
-<a name="sink" class="anchor" href="#sink"><span class="octicon octicon-link"></span></a>Sink</h3>
-
-<p>Sink module is responsible for final sending formatted message into its final destination. It can be file, socket, syslog or whatever else. At this moment some already implemented sinks are:</p>
-
-<ul>
-<li>Null: sends messages into, damn, nothing. Useful in testing;</li>
-<li>Stream: prints messages into standard outputs, like stdout or stderr;</li>
-<li>Files: sends messages into specified file. Multiple file handling are supported including file naming by pattern depending on log event's actual attributes. Also file rotation can be flexibly configured;</li>
-<li>Syslog: sends messages into *nix syslog using standard glibc syslog interface functions. Facility, identity and other options can be also easily configured;</li>
-<li>Socket: sends message into specified UDP or TCP socket (synchronously at this time).</li>
-</ul><p>Here lifetime of log event ends.</p>
-
-<h2>
-<a name="repository" class="anchor" href="#repository"><span class="octicon octicon-link"></span></a>Repository.</h2>
-
-<p>Class apart is the repository singleton, which is responsible for the registration of all possible types of loggers that will be used in your application, adding typical configurations and, surprisingly, creating logger objects.</p>
-
-<p>It should be considered just as a large factory.</p>
-
-<h1>
-<a name="tutorial" class="anchor" href="#tutorial"><span class="octicon octicon-link"></span></a>Tutorial</h1>
-
-<h1>
-<a name="blackhole-in-detail" class="anchor" href="#blackhole-in-detail"><span class="octicon octicon-link"></span></a>Blackhole in detail</h1>
-
-<h2>
-<a name="registering-own-attributes" class="anchor" href="#registering-own-attributes"><span class="octicon octicon-link"></span></a>Registering own attributes</h2>
-
-<h2>
-<a name="formatters" class="anchor" href="#formatters"><span class="octicon octicon-link"></span></a>Formatters</h2>
-
-<h2>
-<a name="sinks" class="anchor" href="#sinks"><span class="octicon octicon-link"></span></a>Sinks</h2>
-
-<h2>
-<a name="filter-dsl" class="anchor" href="#filter-dsl"><span class="octicon octicon-link"></span></a>Filter DSL</h2>
-
-<h1>
-<a name="extending-blackhole" class="anchor" href="#extending-blackhole"><span class="octicon octicon-link"></span></a>Extending Blackhole</h1>
-
-<h2>
-<a name="writing-own-formatter" class="anchor" href="#writing-own-formatter"><span class="octicon octicon-link"></span></a>Writing own formatter</h2>
-
-<h2>
-<a name="writing-own-sink" class="anchor" href="#writing-own-sink"><span class="octicon octicon-link"></span></a>Writing own sink</h2>
-
-<h2>
-<a name="writing-own-frontend" class="anchor" href="#writing-own-frontend"><span class="octicon octicon-link"></span></a>Writing own frontend</h2>
+          {% for post in site.posts %}
+            {{ post.content }}            
+          {% endfor %}
         </section>
 
         <footer>
