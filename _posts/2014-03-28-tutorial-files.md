@@ -68,9 +68,9 @@ template<class Sink, class Formatter>
 void repository_t<Level>::instance().configure();
 {% endhighlight %}
 
-Required logger's object can be properly created only after registering frontend with corresponding configuration. Without registration an exception will be thrown:
+Required logger's object can be properly created only after registering frontend with corresponding configuration. Without registration an exception will be thrown.
 
-### And don't forget to cook
+### Configuration comes
 
 Returning to the formatters and sinks configuration, formatter one is already familiar to us:
 {% highlight c++ %}
