@@ -5,33 +5,36 @@ We consider how to register complex file sink with rotation support and how conf
 Then we will configure file rotation itself constrainted by file size and maximum backups. At last I'll show how to attach user attributes to every log message.
 
 As always we started with included all necessary headers:
-```
+{% highlight c++ %}
 #include <blackhole/blackhole.hpp>
 #include <blackhole/frontend/files.hpp>
-```
+{% endhighlight %}
 
 Unlike previous examples there is new header file we needer - files frontend. If you look more deeper in the library you will see that there is also files sink located in
-```
+{% highlight c++ %}
 #include <blackhole/sink/files.hpp>
-```
+{% endhighlight %}
+
 Why not to include it? Well, the need for special frontend is explained by fact, that files sink requires **additional** arguments in its *consume* method. In other words, files sink needs extended contract with underlying formatter. That's why frontends needed - to couple various formatters and sinks in one entity. If the existing contract doesn't satisfied with external requirements, there is always possibility to implement additional frontend specialization.
 
 *Note, that there is also additional sink that requires extended frontend - syslog. More on syslog logging will be discussed later.*
 
 Of course we need to define severity enumeration:
-```
+{% highlight c++ %}
 enum class level {
     debug,
     error
 };
 
 using namespace blackhole;
-```
+{% endhighlight %}
 
 And here comes the most intresting part of this tutorial - frontend registration.
 
-As formatter we choose string formatter, you should be already familiar with it. As sink it will be files sink with rotation support. Registration code may look frustrating:
-```
+### Register everything
+
+As formatter we choose string formatter, you should be already familiar with it. As sink it will be files sink with rotation support. Registration code may look frustrating and smells like dark template magic:
+{% highlight c++ %}
 repository_t<level>::instance().configure<
         sink::files_t<
             sink::files::boost_backend_t,
@@ -42,7 +45,7 @@ repository_t<level>::instance().configure<
         >,
         formatter::string_t
     >();
-```
+{% endhighlight %}
 
 What? Why so complicated? To fully understand why I've made so strange architecture decision, let's look deeper inside the library.
 
@@ -54,65 +57,82 @@ The second reason was to have an ability to test separate components of the libr
 
 To simplify the testing of all this zoo Alexandrescu's [Policy Based Design](http://en.wikipedia.org/wiki/Policy-based_design) was chosen, but it fits this case perfectly.
 
-So, once again, Blackhole has very fwe dynamically coupled components. But they are there, and one of them - **frontend**. Logger object itself operates with list of frontends and it doesn't care what logic it implements. This opens the possibility of creating frontend plugins and makes available to create extendable plugin system.
+So, once again, Blackhole has very fwe dynamically coupled components. But they are there, and one of them - is **frontend**. Logger object itself operates with list of frontends and it doesn't care what logic it implements. This opens the possibility of creating frontend plugins and makes available to create extendable plugin system.
 
 So why to register the components used statically? Some library components (formatters, sinks or frontends) can require additional properties or functions definition known at compile-time. For example, syslog sink requires the user to define mapping function that maps user defined severity level enumeration to the syslog's severity.
 
 Just in case, repository's register method's signature is:
-```
+{% highlight c++ %}
 template<typename Level>
 template<class Sink, class Formatter>
 void repository_t<Level>::instance().configure();
-```
+{% endhighlight %}
 
 Required logger's object can be properly created only after registering frontend with corresponding configuration. Without registration an exception will be thrown:
-```
-В КОНЦЕ ПОПРОБОВАТЬ ЗАКОММЕНТИТЬ РЕГИСТРАЦИЮ И ПОКАЗАТЬ КОРКУ.
-```
 
+### And don't forget to cook
 
 Returning to the formatters and sinks configuration, formatter one is already familiar to us:
-```
+{% highlight c++ %}
 formatter_config_t formatter("string");
 formatter["pattern"] = "[%(timestamp)s] [%(severity)s]: %(message)s";
-```
+{% endhighlight %}
 
 Files sink with rotation support configuration looks more intresting:
-```
+{% highlight c++ %}
 sink_config_t sink("files");
 sink["path"] = "blackhole-%(host)s.log";
 sink["autoflush"] = true;
 sink["rotation"]["pattern"] = "%(filename)s.%N";
 sink["rotation"]["backups"] = std::uint16_t(10);
 sink["rotation"]["size"] = std::uint64_t(10 * 1024);
-```
+{% endhighlight %}
 
-Let's stop on each option in detail, although their complete description is given in the reference documentation.
+Although there is complete description in the reference documentation, let's stop on each option in detail.
 
-* Option `path` determines (suddenly) file name where logs will be put. In our case log records will be written in file named `blackhole-%`... What? What a placeholder? Here we comes to the another Blackhole's feature: specifying file pattern or determining real file name depending on considered log record's attributes set. Logstash has feature something like this, so if you familiar with Logstash, you'll be ok here. In our case there will be different files created with names depending on *host* attribute's value. For example, if `host: localhost`, then all logs having host attribute in its records 'localhost' will be written into file named `blackhole-localhost.log`. If there won't be this attribute, nothing will be substituted leaving raw placeholder in its place. Using placeholders is not necessary, so if you want to write all logs in one file (say, blackhole.log), just don't use them.
-* Option `autoflush` determines whether logs are dumped in the file immediately, or accumulated in the internal buffer.
-* Here come several `rotation` options, that determines file rotation settings. If something defined in this section, Blackhole will create files sink with rotation support, otherwise without one.
-    * Option `pattern` specifies pattern for backup files. Any name can be used here, if you want to keep your backup names differently than the active file name. For convenience the next placeholders can be also user:    
-        * Filename `%(filename)s` placeholder substitutes active file name.
-        * Positional `%N` placeholder substitutes current backup position, starting with 1.
-        * Date-time placeholders `%Y`, `%H`, `%M` substitute the current values ​​of the corresponding fields.
-    * Option `backups` specifies maximum backup count. After reaching that value older files will be replaced with the newer ones.
-    * Option `size` specifies active file's maximum size, after reacting that it will be rotated.
-    * Also date-time rotation can be specified, e.g. each day or each hour, but not now. More detailed it will be discussed in reference documentation.    
+#### Path
+Path option determines (suddenly) file name where logs will be put.
+In our case log records will be written in file named `blackhole-%...`
+
+*What? What a placeholder?* 
+
+Here we comes to the another Blackhole's feature: specifying file pattern or determining real file name depending on current log record's attributes set. [Logstash](logstash.net) has feature something like this, so if you familiar with Logstash, you'll be ok here. 
+
+In our case there will be different files created with names depending on *host* attribute's value.
+
+For example, if attribute `host: localhost`, then all logs having host attribute in its records 'localhost' will be written into file named `blackhole-localhost.log`. If there won't be this attribute, nothing will be substituted leaving raw placeholder in its place. 
+
+Using placeholders is not necessary, so if you want to write all logs in one file (say, blackhole.log), just don't use them.
+
+#### Autoflush
+Autoflush determines whether logs are dumped in the file immediately, or accumulated in the internal buffer.
+
+#### Rotation
+Here come several rotation options, that determines file rotation settings. If something defined in this section, Blackhole will create files sink with rotation support, otherwise without one.
+
+* Option `pattern` specifies pattern for backup files. Any name can be used here, if you want to keep your backup names differently than the active file name. For convenience the next placeholders can be also used:        
+
+    * Filename `%(filename)s` placeholder substitutes active file name.
+    * Positional `%N` placeholder substitutes current backup position, starting with 1.
+    * Date-time placeholders `%Y`, `%H`, `%M` etc. substitute the current values ​​of the corresponding fields.
+* Option `backups` specifies maximum backup count. After reaching that value older files will be replaced with the newer ones.
+* Option `size` specifies active file's maximum size, after reacting that it will be rotated.
+
+*Note that also date-time rotation can be specified, e.g. each day or each hour, but not now. More detailed it will be discussed in reference documentation.*
 
 In our example we just customized our files sink so that it will rotate files after reaching 10 KB size, also there will be maximum 10 backups.
 
 Next steps should be already familiar for people who passes previous tutorials. We just create frontend and logger configuration objects and push the last one into the repository.
-```
+{% highlight c++ %}
 frontend_config_t frontend = { formatter, sink };
 log_config_t config{ "root", { frontend } };
 
 repository_t<level>::instance().add_config(config);
-```
+{% endhighlight %}
 
-### How to use it
+### How to use this stuff
 All that remains is to create `main` function. It isn't contains almost nothing new for us, so I just leave its code here:
-```
+{% highlight c++ %}
 int main(int, char**) {
     init();
     verbose_logger_t<level> log = repository_t<level>::instance().root();
@@ -124,62 +144,122 @@ int main(int, char**) {
 
     return 0;
 }
-```
+{% endhighlight %}
 
-We just writing logs in cycle 32 times (to accelerate rotation condition to see how it works). However there are differences. Are you notices that braces with two parameters after each log macro? Seems like something called after invoking logging macro.
+We just writing logs in cycle 32 times (to accelerate rotation condition to see how it works). However there are differences. Are you notices that braces with two parameters after each log macro? *Seems like something called after invoking logging macro.*
 
-Welcome to the dynamic attributes setting into the log event! Every log event can transport any number of additional attributes, which will participate in all subsequent operations associated with it (look at the architecture diagram, if you forgot).
+Welcome to the **dynamic attributes** setting into the log event! Every log event can transport any number of additional attributes, which will participate in all subsequent operations associated with it (look at the architecture diagram, if you forgot).
 
 How is it imlemented?
 
 Actually, `BH_LOG` macro returns functional object, which accepts variadic pack that is analizyd in three ways (fourth is on the way).
 
 First way is to explicitly create attributes objects using helper `attributes::make` function:
-```
+{% highlight c++ %}
 BH_LOG(log, level::debug, "debug event")(
     attribute::make("host", "localhost"),
     attribute::make("answer", 42.0),
     attribute::make("code", 404)
 );
-```
+{% endhighlight %}
 
 Additionly you can use registered **keywords**:
-```
+{% highlight c++ %}
 BH_LOG(log, level::debug, "debug event")(
     keyword::host() = "localhost",
     keyword::answer() = 42.0,
     keyword::code() = 404
 );
-```
+{% endhighlight %}
 
 In fact it is syntactic sugar over the first method. Registered keywords have defined `operator=`, which returns attribute object therefore the first and the second method can be combined:
-```
+{% highlight c++ %}
 BH_LOG(log, level::debug, "debug event")(
     attribute::make("host", "localhost"),
     keyword::answer() = 42.0,
     attribute::make("code", 404)
 );
-```
+{% endhighlight %}
 
 Keywords can be useful not only for these purposes. More details about them will be discussed in reference documentation.
 
 The third method is relatively recent. It allows you to specify a list of attributes as key-value pairs, where the key should be converted string and value - should be implicitly converted to `attribute_value_t`. In code, it looks like this:
-```
+{% highlight c++ %}
 BH_LOG(log, level::debug, "debug event")(
     "host", "localhost",
     "answer", 42.0,
     "code", 404
 );
-```
+{% endhighlight %}
 
 Argument correctness is verified at compile time, so if something goes wrong will be given a human-readable `static_assert`.
 
-The fourth method still in the plans, but involves initialization lists usage. Stay tuned.
+*Note that the fourth method still in the plans, but involves initialization lists usage. Stay tuned.*
 
 Which of the following methods to choose - is your decision, depending on what you prefer.
 
 Full example code:
-```
-```
+{% highlight c++ linenos %}
+#include <blackhole/blackhole.hpp>
+#include <blackhole/frontend/files.hpp>
 
-By running this example several times rotation effect can be tracked:
+using namespace blackhole;
+
+enum class level {
+    debug,
+    error
+};
+
+void init() {
+    repository_t<level>::instance().configure<
+        sink::files_t<
+            sink::files::boost_backend_t,
+            sink::rotator_t<
+                sink::files::boost_backend_t,
+                sink::rotation::watcher::size_t
+            >
+        >,
+        formatter::string_t
+    >();
+
+    formatter_config_t formatter("string");
+    formatter["pattern"] = "[%(timestamp)s] [%(severity)s]: %(message)s";
+
+    sink_config_t sink("files");
+    sink["path"] = "blackhole-%(host)s.log";
+    sink["autoflush"] = true;
+    sink["rotation"]["pattern"] = "%(filename)s.%N";
+    sink["rotation"]["backups"] = std::uint16_t(10);
+    sink["rotation"]["size"] = std::uint64_t(10 * 1024);
+
+    frontend_config_t frontend = { formatter, sink };
+    log_config_t config{ "root", { frontend } };
+
+    repository_t<level>::instance().add_config(config);
+}
+
+int main(int, char**) {
+    init();
+    verbose_logger_t<level> log = repository_t<level>::instance().root();
+
+    for (int i = 0; i < 32; ++i) {
+        BH_LOG(log, level::debug, "debug event")("host", "127.0.0.1");
+        BH_LOG(log, level::error, "error event")("host", "localhost");
+    }
+
+    return 0;
+}
+{% endhighlight %}
+
+By running this example several times rotation effect can be tracked.
+
+Just after first rotation:
+![Just after first rotation](images/docs/files-rotation-1.png)
+
+After collecting maximum backups:
+![After collecting maximum backups](images/docs/files-rotation-2.png)
+
+Althought not covered here it's also worth mentioning that files can be also rotated, say, every day or every hour. To mark date and time when rotattion occurs, special datetime placeholders can be used in file pattern.
+
+Instead of conclusions note that Blackhole provides wide support of file logging including rotating, naming and complex formatting. For this example, resulted file will look like:
+![Final result](images/docs/files-rotation-3.png)
