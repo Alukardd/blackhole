@@ -23,11 +23,11 @@ Let's specify own pattern for every log message, say, something like this:
 `[%(timestamp)s] <%(severity)s>:: %(message)s`
 
 At this point let's talk about string formatter pattern syntax. Consider pattern specified above. It has printf-like syntax with attribute names between `%(` and `)s` symbols and behaves just like you imagine it. If parser meets that attribute name, it will substitute real attribute value instead of it. For example if the log record attributes are:
-```
-timestamp = 1396259922.000000
-severity  = 1
-message   = an intresting log message
-```
+
+    timestamp = 1396259922.000000
+    severity  = 1
+    message   = an intresting log message
+
 formatter will produce the next string: `[1396259922.000000] <1>:: an intresting log message`.
 
 To configure formatter in code we just create object of `formatter_config_t` class which has overloaded `operator[]` and provides `std::map` like interface giving ability to make hierarchical configuration.
@@ -156,10 +156,9 @@ int main(int, char**) {
 {% endhighlight %}
 
 After executing this program the next log messages will be printed on the console:
-```
-[1396271998.662163] <0>:: log message using macro API
-[1396271998.662336] <0>:: log message using log object directly
-```
+
+    [1396271998.662163] <0>:: log message using macro API
+    [1396271998.662336] <0>:: log message using log object directly
 
 As you can see, output format is completely under our control and can be easily changed.
 

@@ -10,9 +10,9 @@ Suppose we want just to write logs without configuration and boring reading tons
 * Sink: stream with stdout output.
 
 First of all include main Blackhole header file which gives you access to the main library features, like repository:
-```
+{% highlight c++ %}
 #include <blackhole/blackhole.hpp>
-```
+{% endhighlight %}
 
 Although, it's not necessary, it is highly recommended to define own severity enumeration. Blackhole supports both loggers with severity separation and without it. But, seriously, what is the logger without separated severity levels? For out example let's specify four levels:
 {% highlight c++ %}
@@ -81,12 +81,11 @@ int main(int, char**) {
 {% endhighlight %}
 
 As a result of this code, the next log messages will be printed on the console:
-```
-[1396259922.290809] [0]: [0] debug - done
-[1396259922.306820] [1]: [1] info - done
-[1396259922.306926] [2]: [2] warning - done
-[1396259922.307020] [3]: [3] error - done
-```
+
+    [1396259922.290809] [0]: [0] debug - done
+    [1396259922.306820] [1]: [1] info - done
+    [1396259922.306926] [2]: [2] warning - done
+    [1396259922.307020] [3]: [3] error - done
 
 *Note that even timestamp attribute prints as raw `timeval` value, it is possible to easily format timesamp as you like using `strftime` specification. Severity levels can be also formatted. In general any attribute can be formatted by specifying intermediate attribute formatter which will be called every formatting cycle. This will be described later.*
 
