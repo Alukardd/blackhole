@@ -153,4 +153,4 @@ int main(int, char**) {
 After executing the next messages should be displayed in your syslog (depending on your syslog's configuration):
 ![Output after executing the example](images/docs/syslog-1.png)
 
-*Note that debug message in my case was ignored by syslog itself, not Blackhole.*
+*Note that debug message in my case was ignored by syslog itself, not by Blackhole.*
