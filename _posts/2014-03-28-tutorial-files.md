@@ -154,7 +154,7 @@ How is it imlemented?
 
 Actually, `BH_LOG` macro returns functional object, which accepts variadic pack that is analizyd in four ways.
 
-First way is to explicitly create attributes objects using helper `attributes::make` function:
+**First** way is to explicitly create attributes objects using helper `attributes::make` function:
 {% highlight c++ %}
 BH_LOG(log, level::debug, "debug event")(
     attribute::make("host", "localhost"),
@@ -163,7 +163,7 @@ BH_LOG(log, level::debug, "debug event")(
 );
 {% endhighlight %}
 
-Additionly you can use registered **keywords**:
+**Additionly** you can use registered **keywords**:
 {% highlight c++ %}
 BH_LOG(log, level::debug, "debug event")(
     keyword::host() = "localhost",
@@ -183,7 +183,7 @@ BH_LOG(log, level::debug, "debug event")(
 
 Keywords can be useful not only for these purposes. More details about them will be discussed in reference documentation.
 
-The third method is relatively recent. It allows you to specify a list of attributes as key-value pairs, where the key should be converted string and value - should be implicitly converted to `attribute_value_t`. In code, it looks like this:
+The **third** method is relatively recent. It allows you to specify a list of attributes as key-value pairs, where the key should be converted string and value - should be implicitly converted to `attribute_value_t`. In code, it looks like this:
 {% highlight c++ %}
 BH_LOG(log, level::debug, "debug event")(
     "host", "localhost",
@@ -194,7 +194,7 @@ BH_LOG(log, level::debug, "debug event")(
 
 Argument correctness is verified at compile time, so if something goes wrong will be given a human-readable `static_assert`.
 
-Fourth way involves initialization lists usage, which gives for some people more clean code:
+The **fourth** way involves initialization lists usage, which gives for some people more clean code:
 {% highlight c++ %}
 BH_LOG(log, level::debug, "debug event")(attribute::list({
     {"host", "localhost"},
