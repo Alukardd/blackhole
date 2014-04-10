@@ -29,7 +29,7 @@ Blackhole supports both strongly and weakly typed enumerations for severity and 
 Actually all that is left to do - is to get logger object and use it. All logger objects in Blackhole are got from `repository_t` object. It is a singleton. Consider it as a large factory, that can register possible types of formatters and sinks, configure it different ways and to create logger objects using registered configurations. As I mentioned before, there is already registered configuration for **root** logger, and we are going to use it:
 {% highlight c++ %}
 int main(int, char**) {
-    verbose_logger_t<level> log = repository_t<level>::instance().root();
+    verbose_logger_t<level> log = repository_t::instance().root<level>();
 
     BH_LOG(log, level::debug,   "[%d] %s - done", 0, "debug");
     BH_LOG(log, level::info,    "[%d] %s - done", 1, "info");
@@ -56,8 +56,7 @@ The complete example code:
 
 /*! All that we need - is to define severity enum with preferred log levels.
  *
- *  Logger object `verbose_logger_t` is provided by `repository_t` class, which
- *  requires severity enumeration as template parameter.
+ *  Logger object `verbose_logger_t` is provided by `repository_t` class.
  */
 
 using namespace blackhole;
@@ -70,7 +69,7 @@ enum class level {
 };
 
 int main(int, char**) {
-    verbose_logger_t<level> log = repository_t<level>::instance().root();
+    verbose_logger_t<level> log = repository_t::instance().root<level>();
 
     BH_LOG(log, level::debug,   "[%d] %s - done", 0, "debug");
     BH_LOG(log, level::info,    "[%d] %s - done", 1, "info");

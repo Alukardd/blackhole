@@ -53,7 +53,7 @@ Remaining part of the example shouldn't be hard to understand if you are familia
 
 As always register necessary formatter and sink. Note that syslog sink requires user-defined severity enumeration symbol as template parameter. This information is needed for severity level mapping.
 {% highlight c++ %}
-repository_t<level>::instance().configure<sink::syslog_t<level>, formatter::string_t>();
+repository_t::instance().configure<sink::syslog_t<level>, formatter::string_t>();
 {% endhighlight %}
 
 Further configuration also shouldn't cause difficulties.
@@ -69,7 +69,7 @@ sink["identity"] = "test-application";
 frontend_config_t frontend = { formatter, sink };
 log_config_t config{ "root", { frontend } };
 
-repository_t<level>::instance().add_config(config);
+repository_t::instance().add_config(config);
 {% endhighlight %}
 
 Full example code is:
@@ -122,7 +122,7 @@ void init() {
     // As always register necessary formatter and sink. Note that syslog sink requires
     // user-defined severity enumeration symbol as template parameter.
     // This information is needed for severity level mapping.
-    repository_t<level>::instance().configure<sink::syslog_t<level>, formatter::string_t>();
+    repository_t::instance().configure<sink::syslog_t<level>, formatter::string_t>();
 
     // Formatter is configured as usual, except we don't need anything than message.
     formatter_config_t formatter("string");
@@ -135,12 +135,12 @@ void init() {
     frontend_config_t frontend = { formatter, sink };
     log_config_t config{ "root", { frontend } };
 
-    repository_t<level>::instance().add_config(config);
+    repository_t::instance().add_config(config);
 }
 
 int main(int, char**) {
     init();
-    verbose_logger_t<level> log = repository_t<level>::instance().root();
+    verbose_logger_t<level> log = repository_t::instance().root<level>();
 
     BH_LOG(log, level::debug, "debug message");
     BH_LOG(log, level::warning, "warning message");

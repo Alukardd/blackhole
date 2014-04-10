@@ -35,7 +35,7 @@ And here comes the most intresting part of this tutorial - frontend registration
 
 As formatter we choose string formatter, you should be already familiar with it. As sink it will be files sink with rotation support. Registration code may look frustrating and smells like dark template magic:
 {% highlight c++ %}
-repository_t<level>::instance().configure<
+repository_t::instance().configure<
         sink::files_t<
             sink::files::boost_backend_t,
             sink::rotator_t<
@@ -127,7 +127,7 @@ Next steps should be already familiar for people who passes previous tutorials. 
 frontend_config_t frontend = { formatter, sink };
 log_config_t config{ "root", { frontend } };
 
-repository_t<level>::instance().add_config(config);
+repository_t::instance().add_config(config);
 {% endhighlight %}
 
 ### How to use this stuff
@@ -135,7 +135,7 @@ All that remains is to create `main` function. It isn't contains almost nothing 
 {% highlight c++ %}
 int main(int, char**) {
     init();
-    verbose_logger_t<level> log = repository_t<level>::instance().root();
+    verbose_logger_t<level> log = repository_t::instance().root<level>();
 
     for (int i = 0; i < 32; ++i) {
         BH_LOG(log, level::debug, "debug event")("host", "127.0.0.1");
@@ -152,7 +152,7 @@ Welcome to the **dynamic attributes** setting into the log event! Every log even
 
 How is it imlemented?
 
-Actually, `BH_LOG` macro returns functional object, which accepts variadic pack that is analizyd in three ways (fourth is on the way).
+Actually, `BH_LOG` macro returns functional object, which accepts variadic pack that is analizyd in four ways.
 
 First way is to explicitly create attributes objects using helper `attributes::make` function:
 {% highlight c++ %}
@@ -194,7 +194,25 @@ BH_LOG(log, level::debug, "debug event")(
 
 Argument correctness is verified at compile time, so if something goes wrong will be given a human-readable `static_assert`.
 
-*Note that the fourth method still in the plans, but involves initialization lists usage. Stay tuned.*
+Fourth way involves initialization lists usage, which gives for some people more clean code:
+{% highlight c++ %}
+BH_LOG(log, level::debug, "debug event")(attribute::list({
+    {"host", "localhost"},
+    {"answer", 42.0},
+    {"code", 404}
+}));
+{% endhighlight %}
+
+*Note, that some compilers allows you not to specify `attribute::list` type explicitly. For example:*
+{% highlight c++ %}
+BH_LOG(log, level::debug, "debug event")({
+    {"host", "localhost"},
+    {"answer", 42.0},
+    {"code", 404}
+});
+{% endhighlight %}
+
+*Actually, only GCC 4.6 doesn't allow you to write like this, because it violates the C++11 Standard (see '-fno-deduce-init-list' extension for more details).*
 
 Which of the following methods to choose - is your decision, depending on what you prefer.
 
@@ -211,7 +229,7 @@ enum class level {
 };
 
 void init() {
-    repository_t<level>::instance().configure<
+    repository_t::instance().configure<
         sink::files_t<
             sink::files::boost_backend_t,
             sink::rotator_t<
@@ -235,12 +253,12 @@ void init() {
     frontend_config_t frontend = { formatter, sink };
     log_config_t config{ "root", { frontend } };
 
-    repository_t<level>::instance().add_config(config);
+    repository_t::instance().add_config(config);
 }
 
 int main(int, char**) {
     init();
-    verbose_logger_t<level> log = repository_t<level>::instance().root();
+    verbose_logger_t<level> log = repository_t::instance().root<level>();
 
     for (int i = 0; i < 32; ++i) {
         BH_LOG(log, level::debug, "debug event")("host", "127.0.0.1");

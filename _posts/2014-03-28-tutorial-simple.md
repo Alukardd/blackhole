@@ -51,7 +51,7 @@ After customizing our future formatter and sink we must combine it into frontend
 frontend_config_t frontend = { formatter, sink };
 log_config_t config{ "root", { frontend } };
 
-repository_t<level>::instance().add_config(config);
+repository_t::instance().add_config(config);
 {% endhighlight %}
 
 After that we have fully configured logger repository, which awaits until we create logger object itself (by name or by *special* name **root**, which doesn't means anything except cool The Mainest Logger name).
@@ -60,7 +60,7 @@ Usage pattern is the same as in previous example. We just create root logger obj
 {% highlight c++ %}
 int main(int, char**) {
     init();
-    verbose_logger_t<level> log = repository_t<level>::instance().root();
+    verbose_logger_t<level> log = repository_t::instance().root<level>();
 
     BH_LOG(log, level::debug, "log message using macro API");    
     return 0;
@@ -123,7 +123,7 @@ void init() {
     frontend_config_t frontend = { formatter, sink };
     log_config_t config{ "root", { frontend } };
 
-    repository_t<level>::instance().add_config(config);
+    repository_t::instance().add_config(config);
 }
 
 // Here it's an example how to create and handle log events without using any macros at all.
@@ -146,7 +146,7 @@ void debug(Log& log, level lvl, const char* message) {
 
 int main(int, char**) {
     init();
-    verbose_logger_t<level> log = repository_t<level>::instance().root();
+    verbose_logger_t<level> log = repository_t::instance().root<level>();
 
     BH_LOG(log, level::debug, "log message using macro API");
     debug(log, level::debug, "log message using log object directly");
