@@ -1,3 +1,7 @@
 _site
 foreign
 Gemfile*
+
+# [IDE]
+.idea
+*.user.txt
