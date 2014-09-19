@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="../stylesheets/pygment_trac.css" media="screen" />
+    <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+    <title>Blackhole by 3Hren</title>
+</head>
+
+<body>
+
+<a href="https://github.com/3hren/blackhole">
+    <img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"/>
+</a>
+
+<div id="container">
+    <div class="left">
+
+        <section>
+            <ul>
+                <li><a href="#">Overview</a></li>
+                <li><a href="#">Using Blackhole</a></li>
+                <li><a href="#">Tutorial</a></li>
+                <li><a href="#">Examples</a></li>
+                <li><a href="#">Reference</a></li>
+            </ul>
+        </section>
+
+    </div>
+
+    <div class="inner">
+
+        <header>
+            <h1>Blackhole</h1>
+            <h2>Yet another logging library.</h2>
+        </header>
+
+        <hr>
+
+        <section id="main_content">
+            <h1>
+                <a name="welcome-to-blackhole-documentation" class="anchor" href="#welcome-to-blackhole-documentation"><span class="octicon octicon-link"></span></a>
+                Welcome to Blackhole documentation.
+            </h1>
+
+            ##What is blackhole##
+
+            {% for post in site.posts %}
+                {{ post.content }}
+            {% endfor %}
+        </section>
+
+        <footer>
+            Blackhole is maintained by <a href="https://github.com/3Hren">3Hren</a>. All rights reserved.<br>
+        </footer>
+
+    </div>
+</div>
+</body>
+</html>
