@@ -4,61 +4,191 @@
 <head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'/>
+    <link rel="stylesheet" type="text/css" href="https://github.com/necolas/normalize.css/blob/master/normalize.css" media="screen"/>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen"/>
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment.css" media="screen"/>
     <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
     <title>Blackhole by 3Hren</title>
 </head>
 
 <body>
 
-<a href="https://github.com/3hren/blackhole">
-    <img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"/>
-</a>
-
-<div id="container">
-    <div class="left">
-
-        <section>
-            <ul>
-                <li><a href="#overview">Overview</a></li>
-                <!--<li><a href="#">Using Blackhole</a></li>-->
-                <li><a href="#tutorials">Tutorial</a></li>
-                <!--<li><a href="#">Examples</a></li>-->
-                <!--<li><a href="#">Reference</a></li>-->
-            </ul>
-        </section>
-
-    </div>
-
-    <div class="inner">
-
-        <header>
+<header>
+    <div class="grid">
+        <div class="title-label unit w-1-3">
             <h1>Blackhole</h1>
-            <h2>Yet another logging library.</h2>
-        </header>
+        </div>
 
-        <hr>
-
-        <section id="main_content">
-            <h1>
-                <a name="welcome-to-blackhole-documentation" class="anchor" href="#welcome-to-blackhole-documentation"><span class="octicon octicon-link"></span></a>
-                Welcome to Blackhole documentation.
-            </h1>
-
-            ##What is blackhole##
-
-            {% for post in site.posts %}
-                {{ post.content }}
-            {% endfor %}
-        </section>
-
-        <footer>
-            Blackhole is maintained by <a href="https://github.com/3Hren">3Hren</a>. All rights reserved.<br>
-        </footer>
-
+        <nav class="main-nav unit w-2-3">
+            <ul>
+                <li><a href="#">Overview</a></li>
+                <li><a href="#">News</a></li>
+                <li><a href="#">Documentation</a></li>
+                <li><a href="#">Tutorial</a></li>
+            </ul>
+        </nav>
     </div>
-</div>
+
+    <a href="https://github.com/3hren/blackhole">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"/>
+    </a>
+</header>
+
+<section class="intro">
+    <div class="grid">
+        <div class="unit w-1-1">
+            <p>Yet another C++ logging library.</p>
+        </div>
+    </div>
+</section>
+
+<section class="features">
+    <div class="grid">
+        <div class="unit w-1-3">
+            <h2>Fast</h2>
+
+            <p>
+                Blackhole is designed to be the fastest logger in C++ ever. This includes dark template magic inside,
+                but for the price of it you are not paying for things you don't use.
+            </p>
+
+            <a href="/docs/benchmarks/">Blackhole benchmarks →</a>
+        </div>
+
+        <div class="unit w-1-3">
+            <h2>Configurable</h2>
+
+            <p>
+                You can configure everything: severity levels, filtering, exception handling, formatting and configuration
+                itself. Settings can be specified both in source code and from file.
+            </p>
+
+            <a href="/docs/configuration/">Configuration example →</a>
+        </div>
+
+        <div class="unit w-1-3">
+            <h2>Extensible</h2>
+
+            <p>
+                You are not restricted with predefined formatters, sinks, frontends or initializers.
+                You can even change formatter-sink connectivity interface with the template specialization.
+            </p>
+
+            <a href="/docs/extension/">How to extend →</a>
+        </div>
+
+        <div class="unit w-1-3">
+            <h2>Header only</h2>
+
+            <p>
+                No runtime dependencies! Just include and develop.
+                Once again, you are not paying for things you don't use. Don't need syslog sink?
+                Don't include and compile it!
+            </p>
+
+            <a href="/docs/header-only/">Advantages →</a>
+        </div>
+
+        <div class="unit w-1-3">
+            <h2>Attribute-based</h2>
+
+            <p>
+                Every log event contains multiple attributes. In Blackhole log attributes is everything.
+                It can be indexed, it can be filtered and it is type-safe.
+            </p>
+
+            <a href="/docs/attributes/">More on attributes →</a>
+        </div>
+
+        <div class="unit w-1-3">
+            <h2>Robust</h2>
+
+            <p>
+                This project is developed using TDD and CI for every operating system it is meant to be build,
+                so any found bugs is fixed without breaking existed functional.
+            </p>
+
+            <a href="https://travis-ci.org/3Hren/blackhole">Build status →</a>
+        </div>
+    </div>
+</section>
+
+<section class="install manual">
+    <div class="grid">
+        <div class="unit w-1-4 center-on-mobiles">
+            <h4>Install manually.</h4>
+        </div>
+        <div class="unit w-3-4 code">
+            <p class="title">Manual Install Instructions</p>
+            <div class="shell">
+                <p class="line">
+                    <span class="path">~</span>
+                    <span class="prompt">$</span>
+                    <span class="command">git clone https://github.com/3Hren/blackhole.git</span>
+                </p>
+
+                <p class="line">
+                    <span class="path">~</span>
+                    <span class="prompt">$</span>
+                    <span class="command">cd blackhole</span>
+                </p>
+
+                <p class="line">
+                    <span class="path">~/blackhole</span>
+                    <span class="prompt">$</span>
+                    <span class="command">cmake</span>
+                </p>
+
+                <p class="line">
+                    <span class="path">~/blackhole</span>
+                    <span class="prompt">$</span>
+                    <span class="command">make install</span>
+                </p>
+
+                <p class="line">
+                    <span class="output"># Now Blackhole is installed</span>
+                </p>
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+</section>
+
+<section class="motivating">
+    <div class="grid">
+        <div class="unit w-1-1">
+            <p>Using Blackhole as easy as it can be imagined.</p>
+        </div>
+    </div>
+</section>
+
+<section class="install motivating">
+    <div class="grid">
+        <div class="unit w-1-4 center-on-mobiles">
+            <h4 class="using">Using Blackhole.</h4>
+        </div>
+        <div class="unit w-3-4 code">
+            <p class="title">main.cpp</p>
+            <div class="shell">
+                {% highlight c++ linenos %} {% include motivating.cpp %} {% endhighlight %}
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+</section>
+
+<footer>
+    <div class="grid">
+        <div class="w-1-3">
+            <p>
+                Blackhole is maintained by <a href="https://github.com/3Hren">3Hren</a>.<br>
+                The contents of this website are © 2014 <a href="https://github.com/3Hren">Evgeny Safronov</a>
+                under the terms of the <a href="https://github.com/3Hren/blackhole/master/LICENSE">MIT License</a>.
+            </p>
+        </div>
+    </div>
+</footer>
+
 </body>
 </html>
