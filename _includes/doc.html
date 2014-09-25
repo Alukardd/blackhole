@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+{% include head.html %}
+
+<body>
+
+{% include header.html %}
+<script>
+    var list = document.querySelectorAll(".main-nav li");
+    list[2].className = list[2].className + " current";
+</script>
+
+<section class="docs">
+    <div class="grid">
+        <div class="unit w-4-5">
+            <article>
+                {% markdown doc/concepts.md %}
+            </article>
+        </div>
+
+        <div class="unit w-1-5">
+            <aside>
+                <h4>Getting Started</h4>
+                <ul>
+                    <li class="current"><a href="/docs/home/">Concepts</a></li>
+                </ul>
+            </aside>
+        </div>
+    </div>
+</section>
+
+</body>
+
+</html>
